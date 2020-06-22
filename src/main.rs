@@ -1,24 +1,27 @@
-use serde::{Deserialize, Serialize};
-use serde_json::{from_str, json, to_string};
+#[macro_use]
+extern crate map_struct;
 
-#[derive(Debug, Deserialize, Serialize)]
-enum Foo {
-    #[serde(rename = "FOOFOO")]
-    A,
-    B,
-    C
+use serde::Serialize;
+use serde_json::to_string;
+
+#[map(Option, #[serde(skip_serializing_if = "Option::is_none")])]
+#[derive(Debug, Serialize)]
+pub struct Foo {
+    #[serde(rename = "foofoo")]
+    foo: u32,
+    bar: u32
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-struct FooContainer {
-    contents: Foo
+#[derive(Debug, Serialize)]
+pub struct Bar {
+    bar: u64
 }
 
 fn main() {
-    let foo = Foo::A;
-    let container = json!({
-        "contents": foo
-    });
+    let foo: Foo = Foo {
+        foo: None,
+        bar: Some(20)
+    };
 
-    println!("{:?}", from_str::<FooContainer>(&to_string(&container).unwrap()).unwrap());
+    println!("{}", to_string(&foo).unwrap());
 }
