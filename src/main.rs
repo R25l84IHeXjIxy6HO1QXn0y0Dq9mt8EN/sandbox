@@ -1,39 +1,24 @@
-trait Runnable {
-    fn exec(&self, input: &[bool]) -> bool;
+use serde::{Deserialize, Serialize};
+use serde_json::{from_str, json, to_string};
+
+#[derive(Debug, Deserialize, Serialize)]
+enum Foo {
+    #[serde(rename = "FOOFOO")]
+    A,
+    B,
+    C
 }
 
-struct DFA<'a> {
-    f: &'a [fn(bool) -> bool],
-    x: &'a [usize],
-    y: &'a [usize],
-    n: &'a [usize]
-}
-
-impl Runnable for DFA<'_> {
-    fn exec(&self, input: &[bool]) -> bool {
-        let mut i = 0;
-        let mut n = 0;
-        let mut o = true;
-        while n < self.f.len() {
-            o = (self.f[i])(input[self.x[i]]);
-            i = n;
-            n = if o {
-                self.y[i]
-            }
-            else {
-                self.n[i]
-            }
-        }
-        o
-    }
+#[derive(Debug, Deserialize, Serialize)]
+struct FooContainer {
+    contents: Foo
 }
 
 fn main() {
-    let dfa = DFA {
-        f: &[(|x: bool| { !x })],
-        x: &[2],
-        y: &[1],
-        n: &[1]
-    };
-    println!("{}", dfa.exec(&[true, false, true, false]));
+    let foo = Foo::A;
+    let container = json!({
+        "contents": foo
+    });
+
+    println!("{:?}", from_str::<FooContainer>(&to_string(&container).unwrap()).unwrap());
 }
