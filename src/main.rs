@@ -1,35 +1,19 @@
-use std::fs;
-use std::io;
+use std::error::Error;
 
 use futures::{future, Future};
 use hyper::{Body, Request, Response, Server};
-use hyper::header::{CONTENT_LENGTH, CONTENT_TYPE};
-use hyper::service::service_fn;
+use hyper::service::{make_service_fn, service_fn};
+use hyperlocal::UnixServerExt;
 
-async fn hello(_: Request<Body>) -> impl Future<Output = Result<Response<Body>, hyper::http::Error>> {
-    let foo = "FOO";
-    future::ready(
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain")
-            .header(CONTENT_LENGTH, foo.len())
-            .body(foo.into())
-    )
-}
-
-fn run() -> io::Result<()> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let path = "foo.sock";
-    if let Err(err) = fs::remove_file(path) {
-        if err.kind() != io::ErrorKind::NotFound {
-            return Err(err);
-        }
-    }
-    let srv = Server::bind_unix(path, service_fn(hello))?;
-    srv.run()?;
+    let srv = Server::bind_unix(path)?
+        .serve(make_service_fn(|_| async {
+            Ok::<_, hyper::Error>(service_fn(|_req| async {
+                Ok::<_, hyper::Error>(Response::new(Body::from("FOO")))
+            }))
+        }))
+        .await?;
     Ok(())
-}
-
-fn main() {
-    if let Err(err) = run() {
-        println!("Error starting server: {}", err)
-    }
 }
