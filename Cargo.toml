@@ -8,12 +8,15 @@ edition = "2018"
 
 [dependencies]
 # base64 = "0.12"
-map_item = { path = "../map_item" }
-fs2 = "0.4"
-# hyper = "0.13"
+# map_item = { path = "../map_item" }
+# fs2 = "0.4"
+futures = "0.3"
+hyper = "0.13"
 # hyper-tls = "0.4"
+hyperlocal = "0.7"
 # libsodium-sys = "0.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-winapi = { version = "0.3", features = ["handleapi", "winsock2"]}
+tokio = "0.2"
+# winapi = { version = "0.3", features = ["handleapi", "winsock2"]}
 # zeroize = "^1.1"
